@@ -1,16 +1,20 @@
+
+// TEST my fast i/o implementation
+// read and write 10^6 numbers took 120 milliseconds.
+
+
 #include <cstdio>
 #include <cstring>
 #include <chrono>
+#include <cstdlib>
 
 
+ 
+static const int N = 1<<20;//10^6
 
-typedef long long ll;
-static const int N = 1<<20;//10^5
-static const int M = 500000 + 8;//5*10^5
-static const int oo = 1000000000;
 
 int a[N];
-int n,m;
+int n;
 
  
 char in[1<<23];
@@ -39,10 +43,10 @@ struct writer
     char * w; 
     writer() : w(out){}
     ~writer(){ flush(); }
-    void writeInt( ll u, char c)
+    void writeInt( int u, char c)
     { 
         if (u < 0){*w++ = '-'; u = -u;}
-        ll v = u; 
+        int v = u; 
         int n = 0,m; 
 
         do ++n; while(v/=10); 
@@ -69,7 +73,7 @@ struct auto_cpu_timer
     }
 };
 
-int solve()
+int test()
 {
     auto_cpu_timer cpu_timer;
     
@@ -87,14 +91,34 @@ int solve()
     return 0;
 }
 
+
+void writeMillionNumbers()
+{
+    FILE * f = fopen("input.txt", "w");
+    if (f != NULL)
+    {
+        n = 1000*1000;
+        fprintf(f, "%d\n", n);
+        srand(time(NULL));
+        for(int i = 0; i < n; ++i)fprintf(f, "%d ", rand());
+        
+        fclose(f);
+    }
+}
+
 int main()
 {
 #ifndef ONLINE_JUDGE
 	freopen("input.txt", "r", stdin);
 	freopen("output.txt", "w", stdout);
 #endif 
-
-	solve();
+        
+        
+        // uncomment for write 10^6 numbers
+        
+        writeMillionNumbers();
+        
+	test();
 	
 	return 0;
 }
