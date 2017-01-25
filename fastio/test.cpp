@@ -1,6 +1,7 @@
 
 // TEST my fast i/o implementation
 // read and write 10^6 numbers took 120 milliseconds.
+// My PC: i3 2gb RAM  Centos 7, gcc 4.8.5  c++11 mode.
 
 
 #include <cstdio>
