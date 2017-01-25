@@ -2,7 +2,7 @@
 // TEST my fast i/o implementation
 // read and write 10^6 numbers took 120 milliseconds.
 // My PC: i3 2gb RAM  Centos 7, gcc 4.8.5  c++11 mode.
-
+// UPD:  printf / scanf  - took 600 milliseconds.
 
 #include <cstdio>
 #include <cstring>
@@ -87,6 +87,21 @@ int test()
     //sort(a, a + n);
     
     for(int i = 0; i < n; ++i)pw.writeInt(a[i], ' ');
+    
+    
+    return 0;
+}
+
+int test_c_i_o()
+{
+    auto_cpu_timer cpu_timer;
+    
+    scanf("%d",&n);
+    for(int i = 0; i < n; ++i)scanf("%d",a+i); //.a[i] = sc.readInt();
+    
+    //sort(a, a + n);
+    
+    for(int i = 0; i < n; ++i) printf("%d ", a[i]);//pw.writeInt(a[i], ' ');
     
     
     return 0;
