@@ -12,6 +12,8 @@
 #include <vector>
 #include <functional>
 #include <memory>
+#include <algorithm>
+#include <numeric>
 
 using Int = std::int64_t;
 
@@ -304,6 +306,7 @@ struct Number
 		factorial_4,
 		factorial_5,
 		power,
+		gcd_,
 		
 		unknown = 99
 		
@@ -357,9 +360,8 @@ struct Number
 
 void printNumber(const Number& number)
 {
-	bool l_raw, r_raw;
-	l_raw = number.left != nullptr && ( number.left->kind == Number::Kind::raw || number.left->kind == Number::Kind::factorial || number.left->kind == Number::Kind::sqrt_);
-	r_raw = number.right != nullptr && (number.right->kind == Number::Kind::raw|| number.right->kind == Number::Kind::factorial || number.right->kind == Number::Kind::sqrt_);
+	const bool l_raw = number.left != nullptr && ( number.left->kind == Number::Kind::raw );
+	const bool r_raw = number.right != nullptr && (number.right->kind == Number::Kind::raw );
 	
 	
 	switch(number.kind)
@@ -406,7 +408,7 @@ void printNumber(const Number& number)
 		case Number::Kind::factorial_4:
 		case Number::Kind::factorial_5:
 		{
-			const bool o = !l_raw;
+			const bool o = number.left->kind != Number::Kind::raw;
 			
 			if (o)
 			  printf("(");
@@ -418,6 +420,15 @@ void printNumber(const Number& number)
 			for(int k = (int)Number::Kind::factorial; k <= (int)number.kind; ++k)
 			  printf("!");
 		  }
+		break;
+		case Number::Kind::gcd_:
+		{
+			printf("gcd(");
+			printNumber(*number.left);
+			printf(", ");
+			printNumber(*number.right);
+			printf(")");
+		}
 		break;
 		case Number::Kind::unknown:
 		printf("UNKNOWN!");
@@ -498,6 +509,11 @@ Number Factorial(const Number& n, std::size_t k)
 	auto fact = [k](Int n){ return Factorial(n,k);};
 	
 	return unaryOpNumber(n, check, fact, static_cast<Number::Kind>((int)Number::Kind::factorial + k - 1));
+}
+
+Number Gcd(const Number& a, const Number& b)
+{
+	return binaryOpNumber(a, b, [](auto&&,auto&&){return true;}, [](auto&& x, auto&& y){ return std::gcd(x,y);}, Number::Kind::gcd_);
 }
 
 using TSet = std::set<Number>;
@@ -615,23 +631,37 @@ Number solve(Int result, Int a, std::size_t n)
 	
 	auto pow_  = [](const Number& x, const Number& n) { return Power(x,n);};
 	
+	auto gcd_ = [](const Number& x, const Number& y){ return Gcd(x,y);};
+	
 	//const std::vector<TOperation> ops = {add, sub, mul, div, mod, pow_, sqrt_};
-	const std::vector<TOperation> ops ={add, sub, mul, div, mod, pow_, sqrt_, fact, fact2, fact3, fact4, fact5};
+	const std::vector<TOperation> ops ={add, sub, mul, div, mod, pow_, sqrt_, fact, gcd_, fact2, fact3, fact4, fact5};
 	std::vector<TOperation> oo;
-	for(auto o : ops)
+	int Size = ops.size() ;
+	Number finalRes {};
+	
+	for(int i = 16; i >= 0; --i)
 	{
-		oo.push_back(o);
+		int z = Size - (1<<i);
+		if (z <= 0 )
+		  continue;
+		  
+		oo.assign(ops.begin(), ops.begin() + z);
 		
-		auto res =  solve(result, a, n, oo);
+		auto res = solve(result, a, n, oo);
 		
 		if (res)
-			return res;
-		
-	} 
-	   
-	return {};
+		{
+			finalRes = res;
+			Size = z;
+		}
+	}
+	    
+	return finalRes;
 	  
 }
+
+
+
 
 void solveAndPrint(Int result, Int a, std::size_t n)
 {
@@ -648,10 +678,10 @@ void solveAndPrint(Int result, Int a, std::size_t n)
 
 int main()
 {
-	for(int i= 0; i <= 20; ++i)
+	for(int i= 0; i <= 40; ++i)
 	{
 		//printf("%2d: ",i);
-		solveAndPrint(6, i, 3);
+		solveAndPrint(i, 4, 4);
 	}
 	  
 	 
